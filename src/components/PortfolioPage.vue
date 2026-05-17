@@ -1,88 +1,119 @@
 <!-- 作品集页面 -->
 <script setup>
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-function goHome() {
-  router.push('/')
-}
 </script>
 
 <template>
   <div class="portfolio-page">
-    <header class="portfolio-header">
-      <button class="back-btn" @click="goHome">← 返回首页</button>
-      <h1 class="portfolio-title">
-        <span class="keyword">PORTFOLIO</span>
-      </h1>
-      <div class="header-spacer"></div>
-    </header>
-
-    <div class="portfolio-content">
-      <p class="placeholder">作品集内容即将上线...</p>
-    </div>
+    <section class="project-section">
+      <a
+        class="project-item"
+        href="https://www.taptap.cn/app/267034"
+        target="_blank"
+      >
+        <span class="item-icon">🎵</span>
+        <span class="item-title">Simple</span>
+      </a>
+    </section>
   </div>
 </template>
 
-<style>
+<style scoped>
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 .portfolio-page {
+  width: 100%;
   min-height: 100vh;
   background-color: #121314;
   color: #d4d4d4;
   font-family: MapleMono, ui-monospace, Consolas, monospace;
+  padding-bottom: 80px;
 }
 
-.portfolio-header {
+/* ===== Project Section ===== */
+.project-section {
+  max-width: 600px;
+  margin: 60px auto 0;
+  padding: 0 24px;
+}
+
+.project-item {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 22px 28px;
   background: #1a1a1e;
-  border-bottom: 1px solid #333;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  border: 1px solid #2a2a2e;
+  border-radius: 10px;
+  text-decoration: none;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.4s ease;
+  isolation: isolate;
 }
 
-.portfolio-title {
-  font-size: 1.3vw;
-  margin: 0;
-  font-weight: normal;
-  color: #d4d4d4;
+/* 背景图片：左半部分，75%遮罩 + 向右渐变消失 */
+.project-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(26, 26, 30, 0.75) 0%,
+      rgba(26, 26, 30, 0.75) 40%,
+      rgba(26, 26, 30, 1) 65%
+    ),
+    url('@/assets/logo/simpleBackground.webp') left center / auto 100% no-repeat;
 }
 
-.back-btn {
-  background: transparent;
-  border: 1px solid #444;
-  color: #888;
-  padding: 6px 14px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: MapleMono, ui-monospace, monospace;
-  font-size: 0.85vw;
-  transition: all 0.2s ease;
+/* 悬停自发光效果 */
+.project-item:hover {
+  border-color: #DCDCAA;
+  box-shadow:
+    0 0 20px rgba(220, 220, 170, 0.35),
+    0 0 45px rgba(220, 220, 170, 0.15),
+    0 0 80px rgba(220, 220, 170, 0.08);
 }
 
-.back-btn:hover {
-  border-color: #60cee2;
-  color: #60cee2;
+.item-icon {
+  position: relative;
+  z-index: 1;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
-.header-spacer {
-  width: 80px;
+.item-title {
+  position: relative;
+  z-index: 1;
+  font-size: 1.15rem;
+  color: #DCDCAA;
+  font-family: MapleMono, ui-monospace, Consolas, monospace;
+  text-align: right;
 }
 
-.portfolio-content {
-  max-width: 700px;
-  margin: 60px auto 0;
-  text-align: center;
-}
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .project-section {
+    margin: 40px auto 0;
+    padding: 0 16px;
+  }
 
-.placeholder {
-  color: #666;
-  font-size: 1.1vw;
-}
+  .project-item {
+    padding: 16px 20px;
+  }
 
-.keyword { color: #569CD6; }
+  .item-icon {
+    font-size: 1.4rem;
+  }
+
+  .item-title {
+    font-size: 1.05rem;
+  }
+}
 </style>
