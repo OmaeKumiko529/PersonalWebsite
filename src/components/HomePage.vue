@@ -243,6 +243,12 @@ onUnmounted(() => {
         </div>
         <p class="subTitle">// 念起成形 Turning ideas into reality.</p>
       </div>
+
+      <!-- 向下滚动提示 -->
+      <div class="scroll-hint">
+        <span class="scroll-hint__text">// scroll</span>
+        <span class="scroll-hint__arrow">▼</span>
+      </div>
     </section>
 
     <!-- 第二屏：关于 / 项目 -->
@@ -684,5 +690,48 @@ section {
 
 .footer-separator {
   color: #555;
+}
+
+/* 向下滚动提示 */
+.scroll-hint {
+  position: absolute;
+  bottom: 8%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #888;
+  font-family: MapleMono;
+  font-size: 0.85vw;
+  user-select: none;
+  pointer-events: none;
+  animation: scrollHintBounce 2.4s ease-in-out infinite;
+}
+
+.scroll-hint__text {
+  opacity: 0.5;
+  letter-spacing: 0.5px;
+}
+
+.scroll-hint__arrow {
+  font-size: 0.7vw;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+@keyframes scrollHintBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.5;
+  }
+  40% {
+    opacity: 1;
+  }
+  60% {
+    transform: translateX(-50%) translateY(6px);
+    opacity: 0.3;
+  }
 }
 </style>
