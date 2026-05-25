@@ -1,6 +1,11 @@
 /**
  * 页面滚动导航 composable
  * 管理多页面区域的滚轮切换动画
+ *
+ * 动画策略：
+ * - 当前页 → 缩小 + 上移 + 淡出
+ * - 下页    → 从下方放大推入 + 淡入
+ * - 配合 power3 缓动，营造景深感
  */
 import { ref } from "vue"
 import gsap from "gsap"
@@ -26,7 +31,9 @@ export function usePageScroll() {
     isAnimating.value = true
 
     const currentEl = sections.value[currentSection.value]
-    const nextEl = sections.value[index]
+    const nextEl    = sections.value[index]
+    const isForward = index > currentSection.value
+    const dir       = isForward ? 1 : -1
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -35,17 +42,30 @@ export function usePageScroll() {
       }
     })
 
+    // 当前页：缩小 + 上移 + 淡出
     tl.to(currentEl, {
-      y: -80,
+      y:        -50 * dir,
+      scale:    0.93,
       autoAlpha: 0,
-      duration: 0.6,
-      ease: "power2.inOut"
-    })
+      duration:  0.65,
+      ease:     "power3.inOut"
+    }, 0)
 
+    // 下页：从下方放大推入 + 淡入
     tl.fromTo(nextEl,
-      { y: 80, autoAlpha: 0 },
-      { y: 0, autoAlpha: 1, duration: 0.6, ease: "power2.inOut" },
-      "<"
+      {
+        y:         50 * dir,
+        scale:     0.93,
+        autoAlpha: 0
+      },
+      {
+        y:         0,
+        scale:     1,
+        autoAlpha: 1,
+        duration:  0.65,
+        ease:     "power3.inOut"
+      },
+      0
     )
   }
 
@@ -65,12 +85,11 @@ export function usePageScroll() {
    * @param {boolean} isTerminalActive - 终端是否激活（从外部传入）
    */
   function onWheel(e, isTerminalActive) {
-    // isTerminalActive 是一个 Vue ref 对象，需要取 .value
     if (isTerminalActive?.value) return
     if (wheelLock.value || isAnimating.value) return
 
     wheelLock.value = true
-    setTimeout(() => (wheelLock.value = false), 900)
+    setTimeout(() => (wheelLock.value = false), 800)
 
     if (e.deltaY > 0) {
       goNext()
@@ -89,7 +108,8 @@ export function usePageScroll() {
     sections.value.forEach((el, idx) => {
       gsap.set(el, {
         autoAlpha: idx === currentSection.value ? 1 : 0,
-        y: idx === currentSection.value ? 0 : 80
+        y:         0,
+        scale:     1
       })
     })
   }
