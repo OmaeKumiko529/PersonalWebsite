@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue"
+import { ref, computed, watch, onMounted, onUnmounted } from "vue"
 import { useRouter } from "vue-router"
 import gsap from "gsap"
 import Badge from "./Badge.vue"
@@ -28,7 +28,88 @@ const {
 } = useTerminal({ onNavigate: (path) => router.push(path) })
 
 // ==================== 页面滚动 ====================
-const { currentSection, sections, onWheel, initSections } = usePageScroll()
+const { currentSection, sections, onWheel, initSections, switchTo } = usePageScroll()
+
+// ==================== 竖向进度指示器元信息 ====================
+const sectionsMeta = [
+  { label: 'HOME' },
+  { label: 'ABOUT' },
+  { label: 'CONTACT' },
+]
+
+// 指示器 DOM 引用
+const indicatorTrackRef = ref(null)
+const indicatorFillRef = ref(null)
+const indicatorDotRefs = ref([])
+const indicatorLabelRefs = ref([])
+
+// 计算每个 section 的状态
+const sectionStatus = computed(() => {
+  return sectionsMeta.map((_, idx) => {
+    if (idx < currentSection.value) return 'past'
+    if (idx === currentSection.value) return 'active'
+    return 'future'
+  })
+})
+
+// 计算填充百分比
+const fillPercent = computed(() => {
+  if (sectionsMeta.length <= 1) return 0
+  return (currentSection.value / (sectionsMeta.length - 1)) * 100
+})
+
+// ==================== 指示器 GSAP 动画 ====================
+let indicatorAnimating = false
+
+// 监听 currentSection 变化以驱动指示器动画
+watch(currentSection, (newVal, oldVal) => {
+  if (indicatorAnimating) return
+  indicatorAnimating = true
+
+  // 动画填充条的 GSAP 过渡
+  gsap.to(indicatorFillRef.value, {
+    height: `${fillPercent.value}%`,
+    duration: 0.55,
+    ease: "power3.inOut",
+    onComplete: () => { indicatorAnimating = false }
+  })
+
+  // 新激活的标签弹性入场
+  if (indicatorLabelRefs.value[newVal]) {
+    gsap.fromTo(indicatorLabelRefs.value[newVal],
+      { opacity: 0, x: 12, scale: 0.9 },
+      {
+        opacity: 1, x: 0, scale: 1,
+        duration: 0.45,
+        ease: "elastic.out(1, 0.5)",
+        clearProps: "x,scale"
+      }
+    )
+  }
+
+  // 旧标签淡出
+  if (oldVal !== undefined && indicatorLabelRefs.value[oldVal]) {
+    gsap.to(indicatorLabelRefs.value[oldVal], {
+      opacity: 0,
+      x: -6,
+      duration: 0.2,
+      ease: "power2.in"
+    })
+  }
+
+  // 当前圆点脉冲动画
+  if (indicatorDotRefs.value[newVal]) {
+    gsap.fromTo(indicatorDotRefs.value[newVal],
+      { scale: 0.8 },
+      {
+        scale: 1,
+        duration: 0.5,
+        ease: "back.out(2)",
+        clearProps: "scale"
+      }
+    )
+  }
+})
 
 // ==================== 光标 & 终端拖拽 ====================
 const cursorElement = ref(null)
@@ -230,6 +311,40 @@ onUnmounted(() => {
 
 <template>
   <div class="viewport" @wheel="(e) => onWheel(e, isTerminalActive)">
+    <!-- 竖向进度指示器（终端风格） -->
+    <div ref="indicatorTrackRef" class="section-indicator">
+      <!-- 垂直轨道背景 -->
+      <div class="indicator-track">
+        <div ref="indicatorFillRef" class="indicator-track-fill"></div>
+      </div>
+
+      <div
+        v-for="(sec, idx) in sectionsMeta"
+        :key="idx"
+        class="indicator-item"
+        :class="`indicator-item--${sectionStatus[idx]}`"
+        @click="switchTo(idx)"
+      >
+        <!-- 圆点 -->
+        <span
+          :ref="el => { if (el) indicatorDotRefs[idx] = el }"
+          class="indicator-dot"
+          :class="`indicator-dot--${sectionStatus[idx]}`"
+        ></span>
+
+        <!-- 标签与光标 -->
+        <div
+          :ref="el => { if (el) indicatorLabelRefs[idx] = el }"
+          class="indicator-label"
+          :class="`indicator-label--${sectionStatus[idx]}`"
+        >
+          <span class="indicator-prompt">{{ sectionStatus[idx] === 'active' ? '$' : sectionStatus[idx] === 'past' ? '>' : ' ' }}</span>
+          <span class="indicator-text">{{ sec.label }}</span>
+          <span v-if="sectionStatus[idx] === 'active'" class="indicator-cursor"></span>
+        </div>
+      </div>
+    </div>
+
     <!-- 第一屏：起始页 -->
     <section ref="section0" class="startPage">
       <div class="titleBlock">
@@ -239,7 +354,7 @@ onUnmounted(() => {
               {{ token.text }}
             </span>
           </span>
-          <span ref="cursorElement" class="cursor">|</span>
+          <span ref="cursorElement" class="cursor"></span>
         </div>
         <p class="subTitle">// 念起成形 Turning ideas into reality.</p>
       </div>
@@ -262,7 +377,7 @@ onUnmounted(() => {
 
       <div class="introduction">
         <div class="item">
-          <p class="introTitle">&lt;!--<span style="color: white;">前端开发</span>--&gt;</p>
+          <p class="introTitle"><!--<span style="color: white;">前端开发</span>--></p>
           <p style="color:#60CEE2; margin-top: 8%;">拥有开发前端技术的经验,熟练掌握HTML, CSS, JS和Vue框架开发</p>
         </div>
         <div class="item">
@@ -352,7 +467,7 @@ onUnmounted(() => {
           <div class="terminalLine currentLine">
             <span class="prompt">[KUMIKO CMD]</span>
             <span class="inputText">{{ currentInput }}</span>
-            <span class="cursorBlock">_</span>
+            <span class="cursorBlock"></span>
           </div>
         </div>
       </div>
@@ -466,6 +581,16 @@ section {
 .string   { color: #CE9178; }
 .function { color: #DCDCAA; }
 
+/* 块状光标 — 标题打字区 */
+.cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.3em;
+  background-color: #d4d4d4;
+  vertical-align: text-bottom;
+  margin-left: 3px;
+}
+
 .infinity {
   color: #ffffff;
   font-weight: 600;
@@ -561,8 +686,14 @@ section {
 
 .punctuation { color: #d4d4d4; }
 
+/* 块状光标 — 终端输入区 */
 .cursorBlock {
-  color: #5fb857;
+  display: inline-block;
+  width: 0.55em;
+  height: 1.1em;
+  background-color: #5fb857;
+  vertical-align: text-bottom;
+  margin-left: 2px;
   animation: blinkCursor 1s step-end infinite;
 }
 
@@ -656,6 +787,252 @@ section {
   opacity: 0.7;
   letter-spacing: 2px;
   display: block;
+}
+
+/* ==================== 竖向进度指示器（终端风格） ==================== */
+.section-indicator {
+  position: fixed;
+  right: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 24px;
+  pointer-events: none;
+  height: 40vh;
+  min-height: 180px;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+/* 垂直轨道 */
+.indicator-track {
+  position: absolute;
+  right: 6px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(96, 206, 226, 0.12);
+  border-radius: 1px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 进度填充条 */
+.indicator-track-fill {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(
+    to top,
+    rgba(96, 206, 226, 0.8),
+    rgba(96, 206, 226, 0.3) 60%,
+    transparent
+  );
+  border-radius: 1px;
+  transition: none; /* 由 GSAP 驱动 */
+}
+
+/* 水平连接短线（电路板风格） */
+.indicator-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  pointer-events: auto;
+  outline: none;
+  z-index: 1;
+}
+
+/* 连接短线 */
+.indicator-item::after {
+  content: '';
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 1px;
+  background: rgba(96, 206, 226, 0.2);
+  transition: width 0.35s ease, background 0.35s ease;
+}
+.indicator-item:hover::after {
+  width: 12px;
+}
+.indicator-item--active::after {
+  width: 12px;
+  background: rgba(96, 206, 226, 0.5);
+}
+.indicator-item--past::after {
+  width: 12px;
+  background: rgba(96, 206, 226, 0.25);
+}
+
+/* ======== 圆点 ======== */
+.indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, transform 0.4s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* past — 已访问：实心填充 + 微光 */
+.indicator-dot--past {
+  background: #60CEE2;
+  border: 2px solid #60CEE2;
+  box-shadow: 0 0 6px rgba(96, 206, 226, 0.3);
+  opacity: 0.7;
+}
+
+/* active — 当前：实心 + 呼吸发光 */
+.indicator-dot--active {
+  background: #60CEE2;
+  border: 2px solid #60CEE2;
+  box-shadow: 0 0 0 rgba(96, 206, 226, 0.6);
+  animation: indicatorPulse 2s ease-in-out infinite;
+  width: 12px;
+  height: 12px;
+}
+
+@keyframes indicatorPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(96, 206, 226, 0.5), 0 0 16px rgba(96, 206, 226, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(96, 206, 226, 0.8), 0 0 28px rgba(96, 206, 226, 0.25);
+  }
+}
+
+/* future — 未访问：空心描边 */
+.indicator-dot--future {
+  background: transparent;
+  border: 2px solid rgba(96, 206, 226, 0.35);
+  opacity: 0.5;
+}
+.indicator-item:hover .indicator-dot--future {
+  border-color: rgba(96, 206, 226, 0.7);
+  opacity: 0.8;
+}
+
+/* ======== 标签 ======== */
+.indicator-label {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-family: MapleMono, ui-monospace, monospace;
+  font-size: 0.75vw;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  position: relative;
+  z-index: 2;
+  user-select: none;
+}
+
+/* 终端提示符 */
+.indicator-prompt {
+  color: #5fb857;
+  font-weight: bold;
+  width: 10px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* 标签文字 */
+.indicator-text {
+  color: #60CEE2;
+}
+
+/* past：标签可见、半透明 */
+.indicator-label--past {
+  opacity: 0.55;
+}
+.indicator-label--past .indicator-text {
+  color: rgba(96, 206, 226, 0.65);
+}
+
+/* active：完全可见 */
+.indicator-label--active {
+  opacity: 1;
+}
+.indicator-label--active .indicator-text {
+  color: #60CEE2;
+  text-shadow: 0 0 6px rgba(96, 206, 226, 0.3);
+}
+
+/* future：标签默认隐藏，hover 时显现 */
+.indicator-label--future {
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.indicator-item:hover .indicator-label--future {
+  opacity: 0.7;
+  transform: translateX(0);
+}
+
+/* 当前标签的闪烁光标 */
+.indicator-cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  background-color: #5fb857;
+  margin-left: 2px;
+  animation: indicatorBlink 1s step-end infinite;
+  flex-shrink: 0;
+}
+
+@keyframes indicatorBlink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+/* ======== 响应式 ======== */
+@media (max-width: 1024px) {
+  .indicator-label--future {
+    display: none;
+  }
+  .indicator-label--past {
+    opacity: 0.5;
+    font-size: 0.65vw;
+  }
+  .indicator-label--active {
+    font-size: 0.75vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-indicator {
+    right: 10px;
+    gap: 16px;
+    height: 30vh;
+    min-height: 120px;
+  }
+  .indicator-label {
+    display: none !important;
+  }
+  .indicator-item::after {
+    display: none;
+  }
+  .indicator-track {
+    right: 5px;
+  }
+  .indicator-dot {
+    width: 8px;
+    height: 8px;
+  }
+  .indicator-dot--active {
+    width: 10px;
+    height: 10px;
+  }
 }
 
 /* 底栏 */
