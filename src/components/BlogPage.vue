@@ -1,4 +1,3 @@
-<!-- 博客展示页 - 公开可见 -->
 <script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
@@ -138,4 +137,43 @@ onMounted(loadPosts)
   word-break: break-word;
 }
 
+/* 容器查询缩放 */
+@container app-content (max-width: 600px) {
+  .blog-title {
+    font-size: 1em;
+  }
+
+  .back-btn {
+    font-size: 0.8em;
+  }
+
+  .blog-content {
+    margin-top: 16px;
+    padding: 0 12px;
+  }
+
+  .post-card {
+    padding: 14px 16px;
+  }
+
+  .post-avatar {
+    font-size: 1em;
+  }
+
+  .post-author {
+    font-size: 0.85em;
+  }
+
+  .post-time {
+    font-size: 0.7em;
+  }
+
+  .post-content {
+    font-size: 0.9em;
+  }
+
+  .header-spacer {
+    display: none;
+  }
+}
 </style>

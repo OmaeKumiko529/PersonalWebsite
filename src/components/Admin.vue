@@ -1,4 +1,3 @@
-<!-- 管理员发帖系统 - 推特风格 -->
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -43,7 +42,6 @@ onMounted(loadPosts)
 
 <template>
   <div class="admin-page">
-    <!-- 顶部导航栏 -->
     <header class="admin-header">
       <button class="back-btn" @click="goHome">← 返回首页</button>
       <h1 class="admin-title">
@@ -54,7 +52,6 @@ onMounted(loadPosts)
       <div class="header-spacer"></div>
     </header>
 
-    <!-- 发帖区域 -->
     <div class="composer">
       <div class="composer-header">
         <span class="composer-label">
@@ -86,7 +83,6 @@ onMounted(loadPosts)
       </div>
     </div>
 
-    <!-- 帖子列表 -->
     <div class="post-list">
       <div
         v-for="post in posts"
@@ -105,7 +101,6 @@ onMounted(loadPosts)
           </button>
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -119,7 +114,6 @@ onMounted(loadPosts)
   padding-bottom: 40px;
 }
 
-/* 顶部栏 */
 .admin-header {
   display: flex;
   align-items: center;
@@ -159,7 +153,6 @@ onMounted(loadPosts)
   width: 80px;
 }
 
-/* 发帖编辑器 */
 .composer {
   max-width: 700px;
   margin: 30px auto 0;
@@ -240,7 +233,6 @@ onMounted(loadPosts)
   cursor: not-allowed;
 }
 
-/* 帖子列表 */
 .post-list {
   max-width: 700px;
   margin: 24px auto 0;
@@ -317,7 +309,6 @@ onMounted(loadPosts)
   background: rgba(244, 71, 71, 0.1);
 }
 
-/* 空状态 */
 .empty-state {
   text-align: center;
   margin-top: 40px;
@@ -332,4 +323,63 @@ onMounted(loadPosts)
   text-align: left;
 }
 
+@container app-content (max-width: 600px) {
+  .admin-title {
+    font-size: 1em;
+  }
+
+  .back-btn {
+    font-size: 0.8em;
+  }
+
+  .composer {
+    margin: 16px 12px 0;
+    padding: 16px;
+  }
+
+  .composer-textarea {
+    font-size: 0.9em;
+  }
+
+  .char-counter {
+    font-size: 0.75em;
+  }
+
+  .submit-btn {
+    font-size: 0.85em;
+    padding: 6px 20px;
+  }
+
+  .post-list {
+    margin: 16px 12px 0;
+  }
+
+  .post-card {
+    padding: 14px 16px;
+  }
+
+  .post-avatar {
+    font-size: 1em;
+  }
+
+  .post-author {
+    font-size: 0.85em;
+  }
+
+  .post-time {
+    font-size: 0.7em;
+  }
+
+  .post-content {
+    font-size: 0.9em;
+  }
+
+  .delete-btn {
+    font-size: 0.75em;
+  }
+
+  .header-spacer {
+    display: none;
+  }
+}
 </style>

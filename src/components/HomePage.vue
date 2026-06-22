@@ -130,8 +130,7 @@ onUnmounted(() => {
 
     </section>
 
-
-    <!-- 底栏：备案信息 -->
+    <!-- 底栏：备案信息（页面底部，非固定） -->
     <div class="footer">
       <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
         湘ICP备2026014314号-1
@@ -275,22 +274,15 @@ section {
   z-index: -1;
 }
 
-
-
-/* 底栏 */
+/* 底栏 - 静态页面底部，非固定 */
 .footer {
-  position: fixed;
-  bottom: 0; left: 0;
   width: 100%;
-  z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  padding: 10px 0;
+  padding: 20px 0;
   background: rgba(18, 19, 20, 0.75);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   font-family: MapleMono;
   font-size: 0.85vw;
   color: #888;
@@ -310,5 +302,4 @@ section {
 .footer-separator {
   color: #555;
 }
-
 </style>
