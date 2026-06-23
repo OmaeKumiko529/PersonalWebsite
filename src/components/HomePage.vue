@@ -59,6 +59,11 @@ onUnmounted(() => {
         <p class="subTitle">// 念起成形 Turning ideas into reality.</p>
       </div>
 
+      <div class="scrollHint">
+        <span class="scrollHintText">向下滚动</span>
+        <span class="scrollHintArrow">▼</span>
+      </div>
+
     </section>
 
     <section class="introPage">
@@ -185,6 +190,7 @@ section {
   background-color: #121314;
   height: 100vh;
   position: relative;
+  overflow: hidden;
 }
 
 .introPage {
@@ -260,6 +266,39 @@ section {
   0%   { transform: translateY(0px) scale(1); }
   50%  { transform: translateY(-6px) scale(1.05); }
   100% { transform: translateY(0px) scale(1); }
+}
+
+/* 底部滚动提示 */
+.scrollHint {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scrollHintText {
+  font-family: MapleMono;
+  font-size: 0.85vw;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 2px;
+}
+
+.scrollHintArrow {
+  font-size: 1.2vw;
+  color: rgba(255, 255, 255, 0.55);
+  animation: bounceDown 2s ease-in-out infinite;
+}
+
+@keyframes bounceDown {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(8px); }
 }
 
 .infinity::after {
