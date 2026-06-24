@@ -1,0 +1,7 @@
+export { default as IconHome } from './IconHome.vue'
+export { default as IconWorks } from './IconWorks.vue'
+export { default as IconBlog } from './IconBlog.vue'
+export { default as IconGitHub } from './IconGitHub.vue'
+export { default as IconEmail } from './IconEmail.vue'
+export { default as IconTelegram } from './IconTelegram.vue'
+export { default as IconTwitter } from './IconTwitter.vue'

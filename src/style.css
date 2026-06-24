@@ -123,7 +123,17 @@ code {
   border: none;
 }
 
-/* 字体调用 */
+/* 安全区域支持（移动端横屏/刘海屏） */
+@supports (padding: env(safe-area-inset-top)) {
+  :root {
+    --safe-top: env(safe-area-inset-top);
+    --safe-bottom: env(safe-area-inset-bottom);
+    --safe-left: env(safe-area-inset-left);
+    --safe-right: env(safe-area-inset-right);
+  }
+}
+
+/* 字体调用 — 仅加载实际使用的文件 */
 @font-face {
   font-family: "MapleMono";
   src: url("./assets/font/MapleMono/MapleMono-CN-Regular.ttf") format("truetype");
@@ -131,8 +141,8 @@ code {
   font-style: normal;
 }
 @font-face {
-  font-family: "MapleMono Bold";
+  font-family: "MapleMono";
   src: url("./assets/font/MapleMono/MapleMono-CN-Bold.ttf") format("truetype");
-  font-weight: normal;
+  font-weight: 700;
   font-style: normal;
 }

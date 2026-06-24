@@ -4,6 +4,7 @@ import gsap from "gsap"
 import Badge from "./Badge.vue"
 import { texts } from "../data/terminalData.js"
 import { useTypewriter } from "../composables/useTypewriter.js"
+import { SITE_CONFIG } from "../data/siteConfig.js"
 
 //useTypewriter.js
 const { displayTokens, typeText, deleteText, wait } = useTypewriter()
@@ -90,7 +91,12 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <p class="secondMainTitle">$ <span style="color: #d2f543;">project</span> <span style="color: white;">--list</span></p>
+      <div class="secondMainTitle">
+      <p>$ <span style="color: #d2f543;">project</span> <span style="color: white;">--list</span></p>
+      <p style="margin-top: 0.5%;">
+        <span class="string" style="font-family: Maplemono; font-size: 1vw;">/* 代表项目 */</span>
+      </p>
+      </div>
 
       <div class="introduction">
         <div class="item2">
@@ -137,11 +143,11 @@ onUnmounted(() => {
 
     <!-- 底栏：备案信息（页面底部，非固定） -->
     <div class="footer">
-      <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
-        湘ICP备2026014314号-1
+      <a :href="SITE_CONFIG.icpUrl" target="_blank" rel="noopener noreferrer">
+        {{ SITE_CONFIG.icp }}
       </a>
       <span class="footer-separator">|</span>
-      <a href="mailto:xisiyao0529@gmail.com">xisiyao0529@gmail.com</a>
+      <a :href="SITE_CONFIG.social.email">{{ SITE_CONFIG.email }}</a>
     </div>
   </div>
 </template>

@@ -32,21 +32,25 @@ onUnmounted(() => {
   clearTimeout(resizeTimer)
 })
 
-const contentScale = computed(() => {
-  // 收起状态或移动端（侧栏覆盖）不缩放
-  if (sidebarCollapsed.value) return 1
-  if (windowWidth.value <= 768) return 1
+// 使用 CSS transform: scale 替代非标准 zoom
+const contentStyle = computed(() => {
+  if (sidebarCollapsed.value) return { transform: 'none', transformOrigin: 'top left' }
+  if (windowWidth.value <= 768) return { transform: 'none', transformOrigin: 'top left' }
 
   const expandedW = 200
   const collapsedW = 56
   const availableExpanded = windowWidth.value - expandedW
   const availableCollapsed = windowWidth.value - collapsedW
 
-  if (availableCollapsed <= 0) return 1
+  if (availableCollapsed <= 0) return { transform: 'none', transformOrigin: 'top left' }
 
-  const scale = availableExpanded / availableCollapsed
-  // 不低于 0.55，防止过度缩小
-  return Math.max(0.55, Math.min(1, scale))
+  const scale = Math.max(0.55, Math.min(1, availableExpanded / availableCollapsed))
+
+  return {
+    transform: `scale(${scale})`,
+    transformOrigin: 'top left',
+    width: `${100 / scale}%`,
+  }
 })
 
 function onLoadingComplete() {
@@ -71,9 +75,7 @@ function onCollapseChange(collapsed) {
     >
       <div
         class="app-content-wrapper"
-        :style="{
-          zoom: contentScale < 1 ? contentScale : '1',
-        }"
+        :style="contentStyle"
       >
         <router-view v-slot="{ Component }">
           <transition name="page" mode="out-in">
@@ -105,9 +107,9 @@ function onCollapseChange(collapsed) {
   overflow: auto;
 }
 
-/* 内容缩放容器 */
+/* 内容缩放容器 — 使用标准 transform 替代 zoom */
 .app-content-wrapper {
-  transition: zoom 0.3s ease;
+  transition: transform 0.3s ease;
   container-type: inline-size;
   container-name: app-content;
 }

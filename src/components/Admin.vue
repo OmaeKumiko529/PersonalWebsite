@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBlogPosts } from '../composables/useBlogPosts.js'
+import { BLOG_CONFIG } from '../data/siteConfig.js'
 
 const router = useRouter()
 
@@ -10,9 +11,8 @@ const { posts, loadPosts, savePosts, formatTime } = useBlogPosts()
 
 // ==================== 发帖表单 ====================
 const newPostContent = ref('')
-const MAX_CHARS = 280
 const charCount = computed(() => newPostContent.value.length)
-const isOverLimit = computed(() => charCount.value > MAX_CHARS)
+const isOverLimit = computed(() => charCount.value > BLOG_CONFIG.maxChars)
 
 function submitPost() {
   const content = newPostContent.value.trim()
@@ -71,7 +71,7 @@ onMounted(loadPosts)
           class="char-counter"
           :class="{ over: isOverLimit }"
         >
-          {{ charCount }} / {{ MAX_CHARS }}
+          {{ charCount }} / {{ BLOG_CONFIG.maxChars }}
         </span>
         <button
           class="submit-btn"
@@ -90,7 +90,7 @@ onMounted(loadPosts)
         class="post-card"
       >
         <div class="post-header">
-          <span class="post-avatar">🐟</span>
+          <span class="post-avatar" role="img" aria-label="用户头像">🐟</span>
           <span class="post-author">OmaeKumiko529</span>
           <span class="post-time">{{ formatTime(post.timestamp) }}</span>
         </div>

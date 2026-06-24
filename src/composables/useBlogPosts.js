@@ -3,15 +3,14 @@
  * 提供 localStorage 帖子存取、格式化等共享逻辑
  */
 import { ref } from 'vue'
-
-const STORAGE_KEY = 'kumiko_blog_posts'
+import { BLOG_CONFIG } from '../data/siteConfig.js'
 
 export function useBlogPosts() {
   const posts = ref([])
 
   function loadPosts() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY)
+      const raw = localStorage.getItem(BLOG_CONFIG.storageKey)
       posts.value = raw ? JSON.parse(raw) : []
     } catch {
       posts.value = []
@@ -19,7 +18,7 @@ export function useBlogPosts() {
   }
 
   function savePosts() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts.value))
+    localStorage.setItem(BLOG_CONFIG.storageKey, JSON.stringify(posts.value))
   }
 
   function formatTime(ts) {
