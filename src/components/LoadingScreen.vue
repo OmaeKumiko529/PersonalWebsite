@@ -1,4 +1,3 @@
-<!-- 加载页面组件 - 字体等资源加载完成前显示 -->
 <script setup>
 import { ref, onMounted } from 'vue'
 import tipsData from '../data/loadingTips.json'
@@ -6,36 +5,36 @@ import tipsData from '../data/loadingTips.json'
 const emit = defineEmits(['loadingComplete'])
 const isFadingOut = ref(false)
 
-// 随机选取一条 Tip
+//随机选取一条 Tip
 const randomTip = ref(tipsData[Math.floor(Math.random() * tipsData.length)])
 
 onMounted(async () => {
-  // 显式加载自定义 MapleMono 字体
+  //显式加载自定义 MapleMono 字体
   const fontLoaders = [
     document.fonts.load('normal 1em "MapleMono"'),
     document.fonts.load('normal bold 1em "MapleMono Bold"'),
   ]
 
-  // 等待所有自定义字体加载完成
+  //等待所有自定义字体加载完成
   await Promise.allSettled(fontLoaders)
 
-  // 确保所有字体（含系统字体）就绪
+  //确保所有字体就绪
   await document.fonts.ready
 
-  // 等待 window.onload 确保图片等资源也加载完毕
+  //等待 window.onload 确保图片等资源也加载完毕
   if (document.readyState !== 'complete') {
     await new Promise((resolve) => {
       window.addEventListener('load', resolve, { once: true })
     })
   }
 
-  // 再给一小段缓冲时间确保渲染稳定
+  //再给一小段缓冲时间确保渲染稳定
   await new Promise(resolve => setTimeout(resolve, 200))
 
-  // 触发渐隐动画
+  //触发渐隐动画
   isFadingOut.value = true
 
-  // 等待渐隐动画完成后通知父组件
+  //等待渐隐动画完成后通知父组件
   setTimeout(() => {
     emit('loadingComplete')
   }, 800)

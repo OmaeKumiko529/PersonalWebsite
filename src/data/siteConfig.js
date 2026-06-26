@@ -4,7 +4,6 @@
  */
 export const SITE_CONFIG = {
   author: 'OmaeKumiko529',
-  alias: 'FishMoies',
   motto: '念起成形 Turning ideas into reality.',
   email: 'xisiyao0529@gmail.com',
   domain: 'https://fishmoies.github.io/PersonalWebsite',
